@@ -44,7 +44,7 @@
                             <label for="rememberMe">Remember me</label>
                         </div>
                         <div class="form-group">
-                            <a href="#" class="secondary-link">Forgot password?</a>
+                            <a href="{{ route('password.request')}}" class="secondary-link">Forgot password?</a>
                         </div>
                         <button type="submit" class="btn primary-btn btn-block">Login</button>
                     </form>

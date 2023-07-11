@@ -3,10 +3,10 @@
   <a href="{{URL('/')}}" class="navbar-brand">
       JobEnigma
     </a>
+    
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
      <i class="fas fa-bars"></i>
-    </button>
-
+    </button> 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav ml-auto">
         @auth
@@ -33,10 +33,25 @@
         </li>
         @endauth
         @guest
-        <a href="/login" class="btn primary-btn">Sign up or Log in</a>
+        <a href="/login" class="btn primary-btn btn-sm" style="width: 250px;">
+           <span class="d-none d-lg-inline">Sign up or Log in</span>
+        </a>
         @endguest
+      <!-- Changes implemented ! -->
+      <!-- Changes implemented ! -->
+        <div class="container" style="padding-bottom: 0px;">
+            <div class="dropdown">
+              <button class="btn btn-success btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                Websites
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{{ route('websiterozee') }}">Rozee</a>
+                <a class="dropdown-item" href="{{ route('websitecontour') }}">Contour Software</a>
+                <a class="dropdown-item" href="{{ route('websitebeoe') }}">Beoe</a>
+                <a class="dropdown-item" href="{{ route('websitepaperpk') }}">PaperPK</a>
+            </div>
+        </div>
       </ul>
     </div>
   </div>
- 
 </nav>

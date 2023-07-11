@@ -9,12 +9,103 @@ use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\savedJobController;
+use App\Http\Controllers\RozeeController;
+use App\Http\Controllers\ContourController;
+use App\Http\Controllers\BeoeController;
+use App\Http\Controllers\PaperpkController;
 use Illuminate\Support\Facades\Route;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+
+
+
 
 //public routes
 Route::get('/', [PostController::class, 'index'])->name('post.index');
 Route::get('/job/{job}', [PostController::class, 'show'])->name('post.show');
 Route::get('employer/{employer}', [AuthorController::class, 'employer'])->name('account.employer');
+
+Route::get('rozee/jobs', [RozeeController::class, 'showJobs'])->name('websiterozee');
+Route::get('rozee/jobs/search', [RozeeController::class, 'search'])->name('rozeesearch');
+Route::get('rozee/reset', [RozeeController::class, 'reset'])->name('resetrozee');
+
+Route::get('contour/jobs', [ContourController::class, 'showJobs'])->name('websitecontour');
+Route::get('contour/jobs/search', [ContourController::class, 'search'])->name('contoursearch');
+Route::get('contour/reset', [ContourController::class, 'reset'])->name('resetcontour');
+
+Route::get('beoe/jobs', [BeoeController::class, 'showJobs'])->name('websitebeoe');
+Route::get('beoe/jobs/search', [BeoeController::class, 'search'])->name('beoesearch');
+Route::get('beoe/reset', [BeoeController::class, 'reset'])->name('resetbeoe');
+
+Route::get('paperpk/jobs', [PaperpkController::class, 'showJobs'])->name('websitepaperpk');
+Route::get('paperpk/jobs/search', [PaperpkController::class, 'search'])->name('paperpksearch');
+Route::get('paperpk/reset', [PaperpkController::class, 'reset'])->name('resetpaperpk');
+
+Route::get('/forgot-password', function () {
+  return view('auth.forgot-password');
+})->name('password.request');
+
+Route::post('/forgot-password', function (Request $request) {
+  $request->validate(['email' => 'required|email']);
+
+  $status = Password::sendResetLink(
+      $request->only('email')
+  );
+
+  if ($status === Password::RESET_LINK_SENT) {
+      Alert::toast('Reset link sent successfully!', 'success');
+      return back();
+  } else if ($status === Password::INVALID_USER) {
+      Alert::toast('Email does not exist!', 'error');
+      return back();
+  } else {
+      Alert::toast('Failed!', 'error');
+      return back();
+  }
+})->name('password.email');
+
+Route::get('/reset-password/{token}', function (string $token) {
+  return view('auth.reset-password', ['token' => $token]);
+})->name('password.reset');
+
+Route::post('/reset-password', function (Request $request) {
+  // dd('ok');
+  $request->validate([
+      'token' => 'required',
+      'email' => 'required|email',
+      'password' => 'required|min:8|confirmed',
+  ]);
+
+  $status = Password::reset(
+      $request->only('email', 'password', 'password_confirmation', 'token'),
+      function ($user, $password) {
+          $user->forceFill([
+              'password' => Hash::make($password)
+          ])->setRememberToken(Str::random(60));
+
+          $user->save();
+
+          event(new PasswordReset($user));
+      }
+  );
+
+  if($status === Password::PASSWORD_RESET)
+  {
+      Alert::toast('Password change successfuly', 'success');
+      return redirect()->route('login');
+  }
+  else
+  {
+      Alert::toast('Password Not change', 'error');
+      return back();
+  }
+
+})->name('password.update');
+
 
 //return vue page
 Route::get('/search', [JobController::class, 'index'])->name('job.index');
@@ -35,6 +126,7 @@ Route::middleware('auth')->prefix('account')->group(function () {
   //applyjobs
   Route::get('apply-job', [AccountController::class, 'applyJobView'])->name('account.applyJob');
   Route::post('apply-job', [AccountController::class, 'applyJob'])->name('account.applyJob');
+
 
   //Admin Role Routes
   Route::group(['middleware' => ['role:admin']], function () {
